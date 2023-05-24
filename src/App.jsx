@@ -11,7 +11,7 @@ function App() {
         <HeaderComponent/>
         <Routes>
         <Route path="/users" element={<ListUsers />} />
-        <Route path='/concerts' element={<Concerts />} />
+        <Route path='/' element={<Concerts />} />
           {/* Другие маршруты, если есть */}
         </Routes>
       </div>
