@@ -1,0 +1,48 @@
+import logo from './logo.svg';
+import './App.css';
+import ListUsers from './components/ListUsers';
+import { BrowserRouter, Routes, Switch, Route } from 'react-router-dom';
+
+
+function App() {
+  return (
+    <div>
+      <BrowserRouter>
+      <Routes>
+        <Route path='/user/:id' element = {<ListUsers/>}/>
+      </Routes>
+      </BrowserRouter>
+      
+    </div>
+  );
+}
+
+export default App;
+
+
+import React, {useState, useEffect} from "react";
+import http from '../http-common';
+import { Link, useNavigate, useParams } from "react-router-dom";
+
+const ListUsers = () =>{
+    const{id} = useParams();
+    const navigate = useNavigate();
+
+    const [name, setname] = useState('');
+    const handlenameChange = (event) =>{
+        setname(event.target.value);
+    };
+
+    const [email, setemail] = useState('');
+    const handleemailChange = (event) =>{
+        setemail(event.target.value);
+    };
+
+    const [password, setpassword] = useState('');
+    const handlepasswordChange = (event) =>{
+        setpassword(event.target.value);
+    };
+
+}
+
+export default ListUsers
