@@ -7,6 +7,9 @@ class ConcertsService  {
     getConcerts(){
         return axios.get(Concert_REST_API_URL);
     }
+    getConcertById(id) {
+        return axios.get(`${Concert_REST_API_URL}/${id}`);
+      }
 }
 
 export default new ConcertsService()
