@@ -28,6 +28,11 @@
   color: #61dafb;
 }
 
+.afisha-link {
+  margin-left: 50px; /* Измените значение по вашему усмотрению */
+}
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
