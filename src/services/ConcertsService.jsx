@@ -20,6 +20,9 @@ class ConcertsService  {
       updateConcert(id, concertData) {
   return axios.post(`${Concert_REST_API_URL}/${id}`, concertData);
 }
-}
+    getAllMusicians() {
+        return axios.get("http://localhost:8080/my_project-1.0-SNAPSHOT/api/musicians");
+    }
+    }
 
 export default new ConcertsService()

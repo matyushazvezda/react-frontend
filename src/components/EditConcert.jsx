@@ -16,12 +16,14 @@ function EditConcert() {
     musicians: [],
   });
 
+  const [allMusicians, setAllMusicians] = useState([]);
+
   useEffect(() => {
-    fetchConcert();
+    Promise.all([fetchConcert(), fetchAllMusicians()]);
   }, []);
 
   const fetchConcert = () => {
-    ConcertsService.getConcertById(id).then((res) => {
+    return ConcertsService.getConcertById(id).then((res) => {
       const { name, location, ticketPriceS, ticketPriceV, date, time, musicians } = res.data;
       setConcert({
         name,
@@ -35,6 +37,12 @@ function EditConcert() {
     });
   };
 
+  const fetchAllMusicians = () => {
+    return ConcertsService.getAllMusicians().then((res) => {
+      setAllMusicians(res.data);
+    });
+  };
+
   const convertMillisecondsToDate = (milliseconds) => {
     const date = new Date(milliseconds);
     const year = date.getFullYear();
@@ -42,14 +50,50 @@ function EditConcert() {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
-  
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event, index) => {
     const { name, value } = event.target;
-    setConcert((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setConcert((prevState) => {
+      const updatedMusicians = [...prevState.musicians];
+      updatedMusicians[index][name] = value;
+      return {
+        ...prevState,
+        musicians: updatedMusicians,
+      };
+    });
+  };
+
+  const handleAddMusician = () => {
+    setConcert((prevState) => {
+      return {
+        ...prevState,
+        musicians: [...prevState.musicians, { name: '' }],
+      };
+    });
+  };
+
+  const handleRemoveMusician = (index) => {
+    setConcert((prevState) => {
+      const updatedMusicians = [...prevState.musicians];
+      updatedMusicians.splice(index, 1);
+      return {
+        ...prevState,
+        musicians: updatedMusicians,
+      };
+    });
+  };
+
+  // Добавим также новый метод handleMusicianSelectChange для выбора музыкантов из списка
+  const handleMusicianSelectChange = (event, index) => {
+    const { value } = event.target;
+    setConcert((prevState) => {
+      const updatedMusicians = [...prevState.musicians];
+      updatedMusicians[index] = { name: value }; // Update the musician object with the selected ID
+      return {
+        ...prevState,
+        musicians: updatedMusicians,
+      };
+    });
   };
 
   const handleFormSubmit = (event) => {
@@ -62,7 +106,7 @@ function EditConcert() {
       ticketPriceV: parseFloat(concert.ticketPriceV),
       date: new Date(concert.date).getTime(),
       time: concert.time,
-      musicians: concert.musicians,
+      musicians: concert.musicians.map((musician) => ({ name: musician.name })),
     };
 
     ConcertsService.updateConcert(id, updatedConcert).then(() => {
@@ -140,8 +184,45 @@ function EditConcert() {
             onChange={handleInputChange}
           />
         </div>
-        {/* Render additional form fields for musicians if needed */}
-        <button type="submit" className="btn btn-primary">Сохранить</button>
+        <div className="form-group">
+          <h3>Музыканты</h3>
+          {concert.musicians.map((musicianId, index) => (
+            <div key={index} className="musician-input-group">
+              <select
+                className="form-control"
+                name="name"
+                value={musicianId}
+                onChange={(event) => handleMusicianSelectChange(event, index)}
+              >
+                <option value="">Выберите музыканта</option>
+                {allMusicians.map((musician) => (
+                  <option key={musician.id} value={musician.id}>
+                    {musician.name}
+                  </option>
+                ))}
+              </select>
+              {index > 0 && (
+                <button
+                  type="button"
+                  className="btn btn-outline-danger"
+                  onClick={() => handleRemoveMusician(index)}
+                >
+                  Удалить
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleAddMusician}
+          >
+            Добавить музыканта
+          </button>
+        </div>
+        <button type="submit" className="btn btn-primary">
+          Сохранить
+        </button>
       </form>
     </div>
   );
