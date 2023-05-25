@@ -15,6 +15,9 @@ class HeaderComponent extends Component {
                         <div className="navbar-brand afisha-link">
                             <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>Афиша</Link>
                         </div>
+                        <div className="navbar-brand afisha-link">
+                            <Link to="/create-concert" style={{ textDecoration: 'none', color: 'inherit' }}>Добавить концерт</Link>
+                        </div>
                     </nav>
                 </header>
             </div>

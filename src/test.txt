@@ -246,3 +246,342 @@ export default App;
         </button>
       </form>
     </div>
+    ------
+    import React, { useEffect, useState } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import ConcertsService from '../services/ConcertsService';
+import MusiciansService from '../services/MusiciansService';
+
+function convertMillisecondsToDate(milliseconds) {
+  return new Date(milliseconds);
+}
+
+function Concerts() {
+  const [concerts, setConcerts] = useState([]);
+  const [sortedBy, setSortedBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [selectedConcertId, setSelectedConcertId] = useState(null);
+  const [selectedConcert, setSelectedConcert] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchConcerts();
+  }, []);
+
+  const fetchConcerts = () => {
+    ConcertsService.getConcerts().then((res) => {
+      setConcerts(res.data);
+    });
+  };
+
+  const handleDeleteConcert = (id) => {
+    ConcertsService.deleteConcert(id).then(() => {
+      setSelectedConcertId(null);
+      setSelectedConcert(null);
+      fetchConcerts();
+      navigate('/');
+    });
+  };
+  
+
+  const handleSort = (field) => {
+    let newSortOrder = 'asc';
+
+    if (field === sortedBy) {
+      newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+    }
+
+    const sortedConcerts = concerts.slice().sort((a, b) => {
+      if (field === 'name') {
+        if (a.name < b.name) return sortOrder === 'asc' ? -1 : 1;
+        if (a.name > b.name) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      }
+      if (field === 'date') {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+      if (field === 'ticketPriceS' || field === 'ticketPriceV') {
+        const priceA = parseFloat(a[field]);
+        const priceB = parseFloat(b[field]);
+        return sortOrder === 'asc' ? priceA - priceB : priceB - priceA;
+      }
+      if (field === 'time') {
+        const timeA = a.time;
+        const timeB = b.time;
+        return sortOrder === 'asc' ? timeA.localeCompare(timeB) : timeB.localeCompare(timeA);
+      }
+      return 0;
+    });
+
+    setConcerts(sortedConcerts);
+    setSortedBy(field);
+    setSortOrder(newSortOrder);
+  };
+
+  const handleConcertClick = (id) => {
+    ConcertsService.getConcertById(id).then((res) => {
+      setSelectedConcertId(id);
+      setSelectedConcert(res.data);
+    });
+  };
+
+  const handleAddConcert = () => {
+    navigate('/create-concert');
+  };
+
+  return (
+    <div className="container">
+      <h2 className="text-center">Список концертов</h2>
+      <div className="row justify-content-center">
+        <div className="col-md-8">
+          <table className="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th className="text-center" onClick={() => handleSort('name')}>
+                  Название {sortedBy === 'name' && <i className={`fas fa-sort-${sortOrder}`} />}
+                </th>
+                <th className="text-center" onClick={() => handleSort('location')}>
+                  Место проведения {sortedBy === 'location' && <i className={`fas fa-sort-${sortOrder}`} />}
+                </th>
+                <th className="text-center" onClick={() => handleSort('ticketPriceS')}>
+                  Цена билета {sortedBy === 'ticketPriceS' && <i className={`fas fa-sort-${sortOrder}`} />}
+                </th>
+                <th className="text-center" onClick={() => handleSort('ticketPriceV')}>
+                  Цена VIP-билета {sortedBy === 'ticketPriceV' && <i className={`fas fa-sort-${sortOrder}`} />}
+                </th>
+                <th className="text-center" onClick={() => handleSort('date')}>
+                  Дата {sortedBy === 'date' && <i className={`fas fa-sort-${sortOrder}`} />}
+                </th>
+                <th className="text-center" onClick={() => handleSort('time')}>
+                  Время {sortedBy === 'time' && <i className={`fas fa-sort-${sortOrder}`} />}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {concerts.map((concert) => (
+                <tr key={concert.id} onClick={() => handleConcertClick(concert.id)}>
+                  <td className="text-center">{concert.name}</td>
+                  <td className="text-center">{concert.location}</td>
+                  <td className="text-center">{concert.ticketPriceS} $</td>
+                  <td className="text-center">{concert.ticketPriceV} $</td>
+                  <td className="text-center">{convertMillisecondsToDate(concert.date).toLocaleDateString()}</td>
+                  <td className="text-center">{concert.time}</td>
+                  <td> <Link to={`/edit-concert/${concert.id}`}>Редактировать</Link> </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {selectedConcert && (
+        <div>
+          <h3>Информация о выбранном концерте:</h3>
+          <p>Название: {selectedConcert.name}</p>
+          <p>Место проведения: {selectedConcert.location}</p>
+          <p>Цена билета: {selectedConcert.ticketPriceS} $</p>
+          <p>Цена VIP-билета: {selectedConcert.ticketPriceV} $</p>
+          <p>Дата: {convertMillisecondsToDate(selectedConcert.date).toLocaleDateString()}</p>
+          <p>Время: {selectedConcert.time}</p>
+          <p>Музыканты:</p>
+          <ul>
+            {selectedConcert.musicians.map((musician) => (
+              <li key={musician.id}>
+                <Link to={`/musicians/${musician.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>{musician.firstName} {musician.lastName}</Link>
+              </li>
+            ))}
+          </ul>
+          <button type="button" class="btn btn-outline-dark" onClick={() => handleDeleteConcert(selectedConcert.id)}>Удалить концерт</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Concerts;
+мне нужно реализовать возможность редактирования концерта 
+
+вот метод в backend 
+@PostMapping("/{id}")
+    @Transactional
+    public ConcertDTO updateConcert(@PathVariable Long id, @RequestBody ConcertDTO concertDTO) {
+        log.info("reklama_upadateConcert");
+        Concert existingConcert = concertRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Concert not found with id: " + id));
+
+        existingConcert.setName(concertDTO.getName());
+        existingConcert.setLocation(concertDTO.getLocation());
+        existingConcert.setTicketPriceS(concertDTO.getTicketPriceS());
+        existingConcert.setTicketPriceV(concertDTO.getTicketPriceV());
+        existingConcert.setDate(concertDTO.getDate());
+        existingConcert.setTime(concertDTO.getTime());
+
+        // Преобразуем список музыкантов из DTO в сущности Musician
+        Set<Musician> musicians = concertDTO.getMusicians().stream()
+                .map(this::convertToMusicianEntity)
+                .collect(Collectors.toSet());
+        existingConcert.setMusicians(musicians);
+
+        Concert updatedConcert = concertRepository.save(existingConcert);
+
+        return convertToConcertDTO(updatedConcert);
+    }
+    ------------
+    import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import ConcertsService from '../services/ConcertsService';
+import MusiciansService from '../services/MusiciansService';
+
+function EditConcert() {
+  const { id } = useParams();
+  const [concertName, setConcertName] = useState('');
+  const [location, setLocation] = useState('');
+  const [ticketPriceS, setTicketPriceS] = useState(0);
+  const [ticketPriceV, setTicketPriceV] = useState(0);
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [musicians, setMusicians] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchConcertDetails();
+  }, []);
+
+  const fetchConcertDetails = () => {
+    ConcertsService.getConcertById(id).then((res) => {
+      const concert = res.data;
+      setConcertName(concert.name);
+      setLocation(concert.location);
+      setTicketPriceS(concert.ticketPriceS);
+      setTicketPriceV(concert.ticketPriceV);
+      setDate(concert.date);
+      setTime(concert.time);
+      setMusicians(concert.musicians);
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const updatedConcert = {
+      name: concertName,
+      location,
+      ticketPriceS,
+      ticketPriceV,
+      date: new Date(date).getTime(),
+      time,
+      musicians
+    };
+    ConcertsService.updateConcert(id, updatedConcert).then(() => {
+      navigate('/');
+    });
+  };
+
+  const formattedDate = new Intl.DateTimeFormat('ru-RU').format(new Date(date));
+
+  return (
+    <div className="container">
+      <h2 className="text-center">Редактирование концерта</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="concertName">Название</label>
+          <input
+            type="text"
+            className="form-control"
+            id="concertName"
+            value={concertName}
+            onChange={(e) => setConcertName(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="location">Место проведения</label>
+          <input
+            type="text"
+            className="form-control"
+            id="location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="ticketPriceS">Цена билета</label>
+          <input
+            type="number"
+            className="form-control"
+            id="ticketPriceS"
+            step="0.01"
+            min="0"
+            value={ticketPriceS}
+            onChange={(e) => setTicketPriceS(parseFloat(e.target.value))}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="ticketPriceV">Цена VIP-билета</label>
+          <input
+            type="number"
+            className="form-control"
+            id="ticketPriceV"
+            step="0.01"
+            min="0"
+            value={ticketPriceV}
+            onChange={(e) => setTicketPriceV(parseFloat(e.target.value))}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="date">Дата</label>
+          <input
+            type="date"
+            className="form-control"
+            id="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            required
+          />
+          <div>Дата в формате: {formattedDate}</div>
+        </div>
+        <div className="form-group">
+          <label htmlFor="time">Время</label>
+          <input
+            type="text"
+            className="form-control"
+            id="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="musicians">Музыканты</label>
+          <select
+            multiple
+            className="form-control"
+            id="musicians"
+            value={musicians.map((m) => m.id)}
+            onChange={(e) =>
+              setMusicians(
+                Array.from(e.target.selectedOptions, (option) =>
+                musicians.find((m) => m.id === parseInt(option.value))
+                )
+                )
+                }
+                >
+                {MusiciansService.getMusicians().map((musician) => (
+                <option key={musician.id} value={musician.id}>
+                {musician.name}
+                </option>
+                ))}
+                </select>
+                </div>
+                <button type="submit" className="btn btn-primary">
+                Сохранить
+                </button>
+                </form>
+                </div>
+                );
+                }
+                
+                export default EditConcert;

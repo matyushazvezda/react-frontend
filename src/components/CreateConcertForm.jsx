@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import ConcertsService from '../services/ConcertsService';
 import MusicianInput from './MusicianInput';
 
+
+
+
 function CreateConcertForm() {
+    const navigate = useNavigate();
   const [concertData, setConcertData] = useState({
     name: '',
     location: '',
@@ -12,6 +18,8 @@ function CreateConcertForm() {
     time: '',
     musicians: [],
   });
+
+  
 
   const selectedDate = new Date(concertData.date);
   const dateInMilliseconds = selectedDate.getTime();
@@ -52,8 +60,7 @@ function CreateConcertForm() {
     ConcertsService.createConcert(concertDataWithFormattedTime)
       .then((res) => {
         console.log('Concert created successfully:', res.data);
-        // Обновить список концертов после успешного создания
-        // Вызвать функцию для обновления списка концертов в родительском компоненте
+        navigate('/'); // Перенаправление на начальную страницу
       })
       .catch((error) => {
         console.error('Error creating concert:', error);

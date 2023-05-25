@@ -13,6 +13,13 @@ class ConcertsService  {
       createConcert(concertData) {
         return axios.post(Concert_REST_API_URL, concertData);
       }
+      deleteConcert(id) {
+        return axios.delete(`${Concert_REST_API_URL}/${id}`);
+      }
+
+      updateConcert(id, concertData) {
+  return axios.post(`${Concert_REST_API_URL}/${id}`, concertData);
+}
 }
 
 export default new ConcertsService()

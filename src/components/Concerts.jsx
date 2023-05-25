@@ -25,6 +25,16 @@ function Concerts() {
     });
   };
 
+  const handleDeleteConcert = (id) => {
+    ConcertsService.deleteConcert(id).then(() => {
+      setSelectedConcertId(null);
+      setSelectedConcert(null);
+      fetchConcerts();
+      navigate('/');
+    });
+  };
+  
+
   const handleSort = (field) => {
     let newSortOrder = 'asc';
 
@@ -109,6 +119,7 @@ function Concerts() {
                   <td className="text-center">{concert.ticketPriceV} $</td>
                   <td className="text-center">{convertMillisecondsToDate(concert.date).toLocaleDateString()}</td>
                   <td className="text-center">{concert.time}</td>
+                  <td> <Link to={`/edit-concert/${concert.id}`}>Редактировать</Link> </td>
                 </tr>
               ))}
             </tbody>
@@ -132,7 +143,7 @@ function Concerts() {
               </li>
             ))}
           </ul>
-          
+          <button type="button" class="btn btn-outline-dark" onClick={() => handleDeleteConcert(selectedConcert.id)}>Удалить концерт</button>
         </div>
       )}
     </div>
