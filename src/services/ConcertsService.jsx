@@ -10,6 +10,9 @@ class ConcertsService  {
     getConcertById(id) {
         return axios.get(`${Concert_REST_API_URL}/${id}`);
       }
+      createConcert(concertData) {
+        return axios.post(Concert_REST_API_URL, concertData);
+      }
 }
 
 export default new ConcertsService()

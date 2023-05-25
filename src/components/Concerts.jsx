@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import ConcertsService from '../services/ConcertsService';
 import MusiciansService from '../services/MusiciansService';
 
@@ -13,6 +13,7 @@ function Concerts() {
   const [sortOrder, setSortOrder] = useState('asc');
   const [selectedConcertId, setSelectedConcertId] = useState(null);
   const [selectedConcert, setSelectedConcert] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchConcerts();
@@ -65,6 +66,10 @@ function Concerts() {
       setSelectedConcertId(id);
       setSelectedConcert(res.data);
     });
+  };
+
+  const handleAddConcert = () => {
+    navigate('/create-concert');
   };
 
   return (
@@ -127,6 +132,7 @@ function Concerts() {
               </li>
             ))}
           </ul>
+          
         </div>
       )}
     </div>
