@@ -17,6 +17,9 @@ function EditConcert() {
   });
 
   const [allMusicians, setAllMusicians] = useState([]);
+  const [selectValue, setSelectValue] = useState({
+    index: [0],
+  })
 
   useEffect(() => {
     Promise.all([fetchConcert(), fetchAllMusicians()]);
@@ -34,6 +37,10 @@ function EditConcert() {
         time,
         musicians,
       });
+      var k = musicians.map(item => item.id);
+      setSelectValue({
+        index: k,
+      })
     });
   };
 
@@ -67,7 +74,7 @@ function EditConcert() {
     setConcert((prevState) => {
       return {
         ...prevState,
-        musicians: [...prevState.musicians, { name: '' }],
+        musicians: [...prevState.musicians, { }],
       };
     });
   };
@@ -85,12 +92,26 @@ function EditConcert() {
 
   // Добавим также новый метод handleMusicianSelectChange для выбора музыкантов из списка
   const handleMusicianSelectChange = (event, index) => {
+
+    console.log(event.target.value)
     const { value } = event.target;
+    setSelectValue((prevState)=>{
+        const indexes = [...prevState.index];
+        indexes[index] = event.target.value;
+        indexes.push(0);
+        console.log(indexes);
+        return {
+            ...prevState,
+            index: indexes,
+          };
+    });
     setConcert((prevState) => {
       const updatedMusicians = [...prevState.musicians];
-      updatedMusicians[index] = { name: value }; // Update the musician object with the selected ID
+      //console.log(allMusicians.find(item => item.id = event.target.value))
+      updatedMusicians.push(allMusicians.find(item => item.id == event.target.value)); // Update the musician object with the selected ID
       return {
         ...prevState,
+        selectValue: event.target.value,
         musicians: updatedMusicians,
       };
     });
@@ -106,7 +127,7 @@ function EditConcert() {
       ticketPriceV: parseFloat(concert.ticketPriceV),
       date: new Date(concert.date).getTime(),
       time: concert.time,
-      musicians: concert.musicians.map((musician) => ({ name: musician.name })),
+      musicianIds: concert.musicians.map(item => parseInt(item.id)),
     };
 
     ConcertsService.updateConcert(id, updatedConcert).then(() => {
@@ -188,18 +209,20 @@ function EditConcert() {
           <h3>Музыканты</h3>
           {concert.musicians.map((musicianId, index) => (
             <div key={index} className="musician-input-group">
+                {console.log(index)}
               <select
                 className="form-control"
                 name="name"
-                value={musicianId}
+                value={selectValue.index[index]}
                 onChange={(event) => handleMusicianSelectChange(event, index)}
               >
                 <option value="">Выберите музыканта</option>
                 {allMusicians.map((musician) => (
                   <option key={musician.id} value={musician.id}>
-                    {musician.name}
+                    {musician.firstName}
+    
                   </option>
-                ))}
+                ))} 
               </select>
               {index > 0 && (
                 <button
