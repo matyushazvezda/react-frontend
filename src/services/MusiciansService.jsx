@@ -10,6 +10,15 @@ class MusiciansService {
   getMusicianById(id) {
     return axios.get(`${Musicians_REST_API_URL}/${id}`);
   }
+  updateMusician(id, musician) {
+    return axios.post(`${Musicians_REST_API_URL}/${id}`, musician);
+  }
+  deleteMusician(id) {
+    return axios.post(`${Musicians_REST_API_URL}/delete/${id}`);
+  }
 }
+
+
+
 
 export default new MusiciansService();

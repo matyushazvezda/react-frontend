@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MusiciansService from "../services/MusiciansService";
-import { useParams } from "react-router-dom";
-import "../MusicianDetails.css"; 
-
+import { useParams, Link } from "react-router-dom";
+import "../MusicianDetails.css";
 
 function MusicianDetails() {
   const [musician, setMusician] = useState(null);
@@ -30,6 +29,7 @@ function MusicianDetails() {
       <h2 className="musician-details__name">{musician.firstName} {musician.lastName}</h2>
       <p className="musician-details__bio">{musician.bio}</p>
       <p className="musician-details__music-style">Music Style: {musician.musicStyle}</p>
+      <Link to={`/edit-musician/${id}`} style={{ textDecoration: 'none', color: 'inherit' }} className="edit-button">Редактировать</Link>
     </div>
   );
 }

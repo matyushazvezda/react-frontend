@@ -143,7 +143,7 @@ function Concerts() {
               </li>
             ))}
           </ul>
-          <button type="button" class="btn btn-outline-dark" onClick={() => handleDeleteConcert(selectedConcert.id)}>Удалить концерт</button>
+          <button type="button" class="btn btn-outline-danger" onClick={() => handleDeleteConcert(selectedConcert.id)}>Удалить концерт</button>
         </div>
       )}
     </div>

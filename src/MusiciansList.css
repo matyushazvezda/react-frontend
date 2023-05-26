@@ -1,0 +1,38 @@
+.musicians-list {
+  margin: 20px;
+}
+
+.list-heading {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.musician-card {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+}
+
+.musician-name {
+  font-size: 18px;
+  margin-bottom: 5px;
+  text-decoration: none; /* Remove underline */
+  color: black; /* Set color to black */
+}
+
+.musician-info {
+  margin-bottom: 5px;
+}
+
+.musician-info:last-child {
+  margin-bottom: 0;
+}
+
+.musician__music-style {
+  font-style: italic;
+  color: #888;
+  
+}
